@@ -34,7 +34,7 @@ function app_loop()
 				local i = 0
 				for line in data.app_data[TEXT_MSG].string:gmatch("([^\n]*)\n?") do
 					if line ~= "" then
-						frame.display.text('Something else entirely', 1, i * 60 + 1)
+						frame.display.text(line, 1, i * 60 + 1)
 						i = i + 1
 					end
 				end
