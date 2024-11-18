@@ -2,18 +2,14 @@ local data = require('data.min')
 local battery = require('battery.min')
 local code = require('code.min')
 local sprite = require('sprite.min')
-local plain_text = require('plain_text.min')
 
 -- Phone to Frame flags
--- TODO sample messages only
-USER_SPRITE = 0x20
-TEXT_MSG = 0x12
-CLEAR_MSG = 0x10
+ROCKET_SPRITE = 0x20
+MOVE_MSG = 0x10
 
 -- register the message parsers so they are automatically called when matching data comes in
-data.parsers[USER_SPRITE] = sprite.parse_sprite
-data.parsers[CLEAR_MSG] = code.parse_code
-data.parsers[TEXT_MSG] = plain_text.parse_plain_text
+data.parsers[ROCKET_SPRITE] = sprite.parse_sprite
+data.parsers[MOVE_MSG] = code.parse_code
 
 
 -- Main app loop
@@ -30,32 +26,14 @@ function app_loop()
 		-- one or more full messages received
 		if items_ready > 0 then
 
-			if (data.app_data[TEXT_MSG] ~= nil and data.app_data[TEXT_MSG].string ~= nil) then
-				local i = 0
-				for line in data.app_data[TEXT_MSG].string:gmatch("([^\n]*)\n?") do
-					if line ~= "" then
-						frame.display.text(line, 1, i * 60 + 1)
-						i = i + 1
-					end
-				end
-				frame.display.show()
-			end
+			if (data.app_data[MOVE_MSG] ~= nil) then
 
-			if (data.app_data[USER_SPRITE] ~= nil) then
 				-- show the sprite
-				local spr = data.app_data[USER_SPRITE]
-				frame.display.bitmap(1, 1, spr.width, 2^spr.bpp, 0, spr.pixel_data)
+				local spr = data.app_data[ROCKET_SPRITE]
+				frame.display.bitmap(math.random(1, 640-85), math.random(1, 400-150), spr.width, 2^spr.bpp, 0, spr.pixel_data)
 				frame.display.show()
 
-				data.app_data[USER_SPRITE] = nil
-			end
-
-			if (data.app_data[CLEAR_MSG] ~= nil) then
-				-- clear the display
-				frame.display.text(" ", 1, 1)
-				frame.display.show()
-
-				data.app_data[CLEAR_MSG] = nil
+				data.app_data[MOVE_MSG] = nil
 			end
 		end
 

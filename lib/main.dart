@@ -18,6 +18,8 @@ class MainApp extends StatefulWidget {
 
 /// SimpleFrameAppState mixin helps to manage the lifecycle of the Frame connection outside of this file
 class MainAppState extends State<MainApp> with SimpleFrameAppState {
+  bool _looping = false;
+
   MainAppState() {
     Logger.root.level = Level.INFO;
     Logger.root.onRecord.listen((record) {
@@ -32,13 +34,11 @@ class MainAppState extends State<MainApp> with SimpleFrameAppState {
     if (mounted) setState(() {});
 
     try {
-      // TODO do something, e.g. send some text, wait a while, send a clear message
-      // Check the assets/frame_app.lua to find the corresponding frameside handling for these arbitrarily-chosen msgCodes
-      await frame!.sendMessage(TxPlainText(msgCode: 0x12, text: 'That\'s all folks!'));
-
-      await Future.delayed(const Duration(seconds: 2));
-
-      await frame!.sendMessage(TxCode(msgCode: 0x10));
+      _looping = true;
+      while (_looping) {
+        await frame!.sendMessage(TxCode(msgCode: 0x10));
+        await Future.delayed(const Duration(seconds: 2));
+      }
 
       currentState = ApplicationState.ready;
       if (mounted) setState(() {});
@@ -51,10 +51,7 @@ class MainAppState extends State<MainApp> with SimpleFrameAppState {
 
   @override
   Future<void> cancel() async {
-    // TODO any logic while canceling?
-
-    currentState = ApplicationState.ready;
-    if (mounted) setState(() {});
+    _looping = false;
   }
 
   @override
